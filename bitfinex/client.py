@@ -5,8 +5,16 @@ import base64
 import hmac
 import hashlib
 import time
+import os
 
-from decouple import config
+
+
+# try:
+#     from decouple import config
+# except:
+from decouple import Config, RepositoryIni
+config = Config(RepositoryIni(os.path.join(os.path.expanduser('~'), 'settings.ini')))
+
 
 PROTOCOL = "https"
 HOST = "api.bitfinex.com"

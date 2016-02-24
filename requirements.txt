@@ -10,3 +10,4 @@ sniffer
 Quandl
 python-decouple
 pandas
+backtrader
