@@ -25,10 +25,12 @@ API_SECRET = config('API_SECRET')
 
 PATH_SYMBOLS = "symbols"
 PATH_TICKER = "ticker/%s"
+PATH_PUBTICKER = "/pubticker/%s"
 PATH_TODAY = "today/%s"
 PATH_STATS = "stats/%s"
 PATH_LENDBOOK = "lendbook/%s"
 PATH_ORDERBOOK = "book/%s"
+PATH_TRADES = "/trades/%s"
 
 # HTTP request timeout in seconds
 TIMEOUT = 5.0
@@ -409,6 +411,26 @@ class Client:
         # convert all values to floats
         return self._convert_to_floats(data)
 
+    def pubticker(self, symbol):
+        """
+        GET /pubticker/:symbol
+
+        curl https://api.bitfinex.com/v1/pubticker/BTCUSD
+        {
+          "mid":"244.755",
+          "bid":"244.75",
+          "ask":"244.76",
+          "last_price":"244.82",
+          "low":"244.2",
+          "high":"248.19",
+          "volume":"7842.11542563",
+          "timestamp":"1444253422.348340958"
+        }
+        """
+        data = self._get(self.url_for(PATH_PUBTICKER, (symbol)))
+
+        # convert all values to floats
+        return self._convert_to_floats(data)
 
     def today(self, symbol):
         """
@@ -504,6 +526,31 @@ class Client:
                     list_[key] = float(value)
 
         return data
+
+    def trades(self, symbol, parameters=None):
+        """
+        curl "https://api.bitfinex.com/v1/trades/btcusd"
+
+        Get a list of the most recent trades for the given symbol.
+
+        Example:
+        curl "https://api.bitfinex.com/v1/trades/btcusd?limit_trades=2"
+        [{"timestamp":1467468555,"tid":21085930,"price":"693.37","amount":"0.023459","exchange":"bitfinex","type":"sell"},
+        {"timestamp":1467468552,"tid":21085928,"price":"693.35","amount":"0.164866","exchange":"bitfinex","type":"sell"}]
+
+        :param symbol: BTCUSD|LTCUSD|...
+        :param parameters: {"timestamp": False, # Only Show trades at or after this timestamp
+                            "limit_trades": 1   # maximum trades returned must be >1
+                            }
+        """
+        data = self._get(self.url_for(PATH_TRADES, path_arg=symbol, parameters=parameters))
+        for n, trade in enumerate(data):
+            for key, value in trade.items():
+                if key in ['exchange', 'type']:
+                    continue
+                data[n][key] = float(value)
+        return data
+
 
 
     def _convert_to_floats(self, data):

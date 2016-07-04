@@ -1,5 +1,5 @@
 import pandas as pd
-import Quandl
+# import Quandl
 
 
 class CSVDataSource:
